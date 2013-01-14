@@ -389,16 +389,12 @@ def header_from_mime_encoding(header):
 
 def guess_encoding_and_decode(original, data, errors=DEFAULT_ERROR_HANDLING):
     try:
-        charset = chardet.detect(str(data))
-
-        if not charset['encoding']:
-            raise EncodingError("Header claimed %r charset, but detection found none.  Decoding failed." % original)
-
-        return data.decode(charset["encoding"], errors)
-    except UnicodeError, exc:
-        raise EncodingError("Header lied and claimed %r charset, guessing said "
-                            "%r charset, neither worked so this is a bad email: "
-                            "%s." % (original, charset, exc))
+        try:
+            return data.decode('utf-8')
+        except UnicodeError:
+            return data.decode('latin-1')
+    except UnicodeError:
+        raise EncodingError("Data is neither utf-8 nor latin-1.")
 
 
 def attempt_decoding(charset, dec):
