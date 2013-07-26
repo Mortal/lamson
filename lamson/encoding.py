@@ -67,7 +67,6 @@ project as a test case.
 
 import string
 from email.charset import Charset
-import chardet
 import re
 import email
 from email import encoders
