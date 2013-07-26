@@ -77,7 +77,7 @@ def send_command(port=8825, host='127.0.0.1', username=False, password=False,
     who need it.
     """
     message = mail.MailResponse(From=sender,
-                                  To=to,
+                                  To=[s.strip() for s in to.split(',')],
                                   Subject=subject,
                                   Body=body)
     if attach:
