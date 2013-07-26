@@ -66,6 +66,7 @@ project as a test case.
 """
 
 import string
+import logging
 from email.charset import Charset
 import re
 import email
@@ -94,13 +95,35 @@ class EncodingError(Exception):
     pass
 
 
+class HeaderIterator(object):
+    def __init__(self, headers):
+        self._headers = headers
+        self._i = 0
+        self._j = 0
+        print "Init"
+
+    def next(self):
+        if self._i >= len(self._headers):
+            print "Finish 1"
+            raise StopIteration()
+        if self._j >= len(self._headers[self._i]):
+            self._i += 1
+            self._j = 0
+        if self._i >= len(self._headers):
+            print "Finish 2"
+            raise StopIteration()
+        self._j += 1
+        print "Iterate ({0}, {1})".format(self._i, self._j)
+        return self._headers[self._i][self._j-1]
+
+
 class MailBase(object):
     """MailBase is used as the basis of lamson.mail and contains the basics of
     encoding an email.  You actually can do all your email processing with this
     class, but it's more raw.
     """
     def __init__(self, items=()):
-        self.headers = dict(items)
+        self.headers = {key: [value] for key, value in dict(items).items()}
         self.parts = []
         self.body = None
         self.content_encoding = {'Content-Type': (None, {}), 
@@ -108,19 +131,42 @@ class MailBase(object):
                                  'Content-Transfer-Encoding': (None, {})}
 
     def __getitem__(self, key):
-        return self.headers.get(normalize_header(key), None)
+        return self.headers.get(normalize_header(key), [''])[0]
+
+    def get_all(self, key, failobj=None):
+        return self.headers.get(normalize_header(key), failobj)
+
+    def set_multiple(self, key, values):
+        """Set headers from a given string or iterable.
+
+        If values is a string, it is used as a single header.
+        If values is iterable, each value is added as a header.
+        Otherwise, no header is added."""
+
+        if isinstance(values, basestring):
+            self[key] = values
+        else:
+            try:
+                for v in values:
+                    self[key] = v
+            except TypeError:
+                pass
 
     def __len__(self):
-        return len(self.headers)
+        return sum(len(h) for h in self.headers)
 
     def __iter__(self):
-        return iter(self.headers)
+        return HeaderIterator(self.headers)
 
     def __contains__(self, key):
         return normalize_header(key) in self.headers
 
     def __setitem__(self, key, value):
-        self.headers[normalize_header(key)] = value
+        norm_key = normalize_header(key)
+        if norm_key in self.headers:
+            self.headers[norm_key].append(value)
+        else:
+            self.headers[norm_key] = [value]
 
     def __delitem__(self, key):
         del self.headers[normalize_header(key)]
@@ -230,7 +276,11 @@ def from_message(message):
     # copy over any keys that are not part of the content information
     for k in message.keys():
         if normalize_header(k) not in mail.content_encoding:
-            mail[k] = header_from_mime_encoding(message[k])
+            if len(mail.get_all(k, ())) > 0:
+                logging.debug("Delete keys {0}".format(k))
+                del mail[k]
+            for v in message.get_all(k):
+                mail[k] = header_from_mime_encoding(v)
   
     decode_message_body(mail, message)
 
@@ -270,10 +320,13 @@ def to_message(mail):
                             (ctype, params, exc.message))
 
     for k in mail.keys():
+        k_enc = k.encode('ascii')
         if k in ADDRESS_HEADERS_WHITELIST:
-            out[k.encode('ascii')] = header_to_mime_encoding(mail[k])
+            for v in mail.get_all(k):
+                out[k_enc] = header_to_mime_encoding(v)
         else:
-            out[k.encode('ascii')] = header_to_mime_encoding(mail[k], not_email=True)
+            for v in mail.get_all(k):
+                out[k.encode('ascii')] = header_to_mime_encoding(v, not_email=True)
 
     out.extract_payload(mail)
 
