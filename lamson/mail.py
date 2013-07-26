@@ -175,7 +175,10 @@ class MailResponse(object):
     def __init__(self, To=None, From=None, Subject=None, Body=None, Html=None):
         self.Body = Body
         self.Html = Html
-        self.base = encoding.MailBase([('To', To), ('From', From), ('Subject', Subject)])
+        self.base = encoding.MailBase()
+        self.base.set_multiple('To', To)
+        self.base.set_multiple('From', From)
+        self.base.set_multiple('Subject', Subject)
         self.multipart = self.Body and self.Html
         self.attachments = []
 
