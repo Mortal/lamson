@@ -248,7 +248,7 @@ class QueueReceiver(object):
                     self.process_message(msg)
                     logging.debug("Removed %r key from queue.", key)
 
-	        inq.remove(key)
+                inq.remove(key)
 
             if one_shot: 
                 return
