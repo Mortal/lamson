@@ -75,6 +75,8 @@ from email.mime.base import MIMEBase
 from email.utils import parseaddr
 import sys
 
+import six
+
 
 DEFAULT_ENCODING = "utf-8"
 DEFAULT_ERROR_HANDLING = "strict"
@@ -143,7 +145,7 @@ class MailBase(object):
         If values is iterable, each value is added as a header.
         Otherwise, no header is added."""
 
-        if isinstance(values, basestring):
+        if isinstance(values, six.string_types):
             self[key] = values
         else:
             try:
