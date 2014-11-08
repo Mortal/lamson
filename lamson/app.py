@@ -1,18 +1,20 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 # vim: set ft=python sw=4 et:
-import logging
+
 import re
+import sys
 import string
 import codecs
-from lamson.routing import route, route_like, stateless, Router
-from config.settings import relay
-from lamson import view
-from lamson.queue import Queue
-import sys
+import logging
 
-import pkg_resources ##required on my setup to use MySQLdb
-pkg_resources.require("MySQL-python")  ##required on my setup to use MySQLdb
+global relay
+
+# from lamson import view
+# from lamson.queue import Queue
+
+# import pkg_resources ##required on my setup to use MySQLdb
+# pkg_resources.require("MySQL-python")  ##required on my setup to use MySQLdb
 import MySQLdb as mdb
 
 # The year that the current BEST was elected (assumed <= 2056)
@@ -295,8 +297,6 @@ def evalAlias(alias, mysql):
         raise
 
 
-@route("(address)@(host)", address=".+")
-@stateless
 def START(message, address=None, host=None):
     ### Reload local import files, so changes are seen.
     ### When not debugging this should properly not be performed.
