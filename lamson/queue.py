@@ -16,7 +16,7 @@ import logging
 
 # we calculate this once, since the hostname shouldn't change for every
 # email we put in a queue
-HASHED_HOSTNAME = hashlib.md5(socket.gethostname()).hexdigest()
+HASHED_HOSTNAME = hashlib.md5(socket.gethostname().encode('ascii')).hexdigest()
 
 class SafeMaildir(mailbox.Maildir):
     def _create_tmp(self):
