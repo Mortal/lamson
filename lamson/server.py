@@ -184,7 +184,7 @@ class SMTPReceiver(smtpd.SMTPServer):
                 "Message received from Peer: %r, From: %r, to To %r."
                 % (Peer, From, To))
             routing.Router.deliver(mail.MailRequest(Peer, From, To, Data))
-        except SMTPError, err:
+        except SMTPError as err:
             # looks like they want to return an error, so send it out
             return str(err)
             undeliverable_message(
