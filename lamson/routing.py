@@ -235,7 +235,8 @@ class RoutingBase(object):
                 self.REGISTERED[format][1].append(func)
             else:
                 self.ORDER.append(format)
-                self.REGISTERED[format] = (re.compile(format, re.IGNORECASE), [func])
+                self.REGISTERED[format] = (
+                    re.compile(format, re.IGNORECASE), [func])
 
     def match(self, address):
         """

@@ -108,7 +108,8 @@ class Relay(object):
         try:
             relay_host = self.configure_relay(hostname)
         except socket.error:
-            logging.exception("Failed to connect to host %s:%d" % (hostname, self.port))
+            logging.exception("Failed to connect to host %s:%d"
+                              % (hostname, self.port))
             return
 
         relay_host.sendmail(sender, recipient, str(message))
@@ -179,20 +180,28 @@ class SMTPReceiver(smtpd.SMTPServer):
         """
 
         try:
-            logging.debug("Message received from Peer: %r, From: %r, to To %r." % (Peer, From, To))
+            logging.debug(
+                "Message received from Peer: %r, From: %r, to To %r."
+                % (Peer, From, To))
             routing.Router.deliver(mail.MailRequest(Peer, From, To, Data))
         except SMTPError, err:
             # looks like they want to return an error, so send it out
             return str(err)
-            undeliverable_message(Data, "Handler raised SMTPError on purpose: %s" % err)
+            undeliverable_message(
+                Data, "Handler raised SMTPError on purpose: %s" % err)
         except:
-            logging.exception("Exception while processing message from Peer: %r, From: %r, to To %r." %
-                          (Peer, From, To))
-            undeliverable_message(Data, "Error in message %r:%r:%r, look in logs." % (Peer, From, To))
+            logging.exception(
+                "Exception while processing message "
+                "from Peer: %r, From: %r, to To %r."
+                % (Peer, From, To))
+            undeliverable_message(
+                Data,
+                "Error in message %r:%r:%r, look in logs." % (Peer, From, To))
 
 
     def close(self):
-        """Doesn't do anything except log who called this, since nobody should.  Ever."""
+        """Doesn't do anything except log who called this, since nobody should.
+        Ever."""
         logging.error(traceback.format_exc())
 
 
