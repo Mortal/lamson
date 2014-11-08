@@ -26,12 +26,12 @@ class SafeMaildir(mailbox.Maildir):
         path = os.path.join(self._path, 'tmp', uniq)
         try:
             os.stat(path)
-        except OSError, e:
+        except OSError as e:
             if e.errno == errno.ENOENT:
                 mailbox.Maildir._count += 1
                 try:
                     return mailbox._create_carefully(path)
-                except OSError, e:
+                except OSError as e:
                     if e.errno != errno.EEXIST:
                         raise
             else:
@@ -122,7 +122,7 @@ class Queue(object):
             else:
                 try:
                     msg = self.get(key)
-                except QueueError, exc:
+                except QueueError as exc:
                     raise exc
                 finally:
                     self.remove(key)
@@ -144,7 +144,7 @@ class Queue(object):
 
         try:
             return mail.MailRequest(self.dir, None, None, msg_data)
-        except Exception, exc:
+        except Exception as exc:
             logging.exception("Failed to decode message: %s; msg_data: %r",   exc, msg_data)
             return None
 
