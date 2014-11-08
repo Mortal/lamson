@@ -325,10 +325,12 @@ def to_message(mail):
         k_enc = k.encode('ascii')
         if k in ADDRESS_HEADERS_WHITELIST:
             for v in mail.get_all(k):
-                out[k_enc] = header_to_mime_encoding(v)
+                # out[k_enc] = header_to_mime_encoding(v)
+                out[k_enc] = v
         else:
             for v in mail.get_all(k):
-                out[k.encode('ascii')] = header_to_mime_encoding(v, not_email=True)
+                # out[k.encode('ascii')] = header_to_mime_encoding(v, not_email=True)
+                out[k.encode('ascii')] = v
 
     out.extract_payload(mail)
 
