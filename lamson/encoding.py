@@ -102,20 +102,16 @@ class HeaderIterator(object):
         self._headers = headers
         self._i = 0
         self._j = 0
-        print "Init"
 
     def next(self):
         if self._i >= len(self._headers):
-            print "Finish 1"
             raise StopIteration()
         if self._j >= len(self._headers[self._i]):
             self._i += 1
             self._j = 0
         if self._i >= len(self._headers):
-            print "Finish 2"
             raise StopIteration()
         self._j += 1
-        print "Iterate ({0}, {1})".format(self._i, self._j)
         return self._headers[self._i][self._j-1]
 
 
