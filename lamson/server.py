@@ -92,16 +92,11 @@ class Relay(object):
         assert relay_host, 'Code error, tell Zed.'
         return relay_host
 
-    def deliver(self, message, To=None, From=None):
+    def deliver(self, message, recipient, sender):
         """
         Takes a fully formed email message and delivers it to the
         configured relay server.
-
-        You can pass in an alternate To and From, which will be used in the
-        SMTP send lines rather than what's in the message.
         """
-        recipient = To or message['To']
-        sender = From or message['From']
 
         hostname = self.hostname or self.resolve_relay_host(recipient)
 
