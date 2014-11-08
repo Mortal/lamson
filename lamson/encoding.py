@@ -224,12 +224,15 @@ class MIMEPart(MIMEBase):
 
     def add_text(self, content):
         # this is text, so encode it in canonical form
-        try:
-            encoded = content.encode('ascii')
-            charset = 'ascii'
-        except UnicodeError:
-            encoded = content.encode('utf-8')
-            charset = 'utf-8'
+        # try:
+        #     encoded = content.encode('ascii')
+        #     charset = 'ascii'
+        # except UnicodeError:
+        #     encoded = content.encode('utf-8')
+        #     charset = 'utf-8'
+
+        encoded = content
+        charset = None
 
         self.set_payload(encoded, charset=charset)
 
@@ -280,7 +283,8 @@ def from_message(message):
             for v in message.get_all(k):
                 mail[k] = header_from_mime_encoding(v)
   
-    decode_message_body(mail, message)
+    # decode_message_body(mail, message)
+    mail.body = message.get_payload(decode=False)
 
     if message.is_multipart():
         # recursively go through each subpart and decode in the same way
