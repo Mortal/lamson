@@ -2,6 +2,8 @@ import sys
 import argparse
 import email
 import email.mime.multipart
+import email.charset
+from email.charset import QP
 
 import lamson.server
 
@@ -54,6 +56,10 @@ def main():
         nargs=2,
         help='Arbitrary header in message',
     )
+    parser.add_argument(
+        '--encoding',
+        help='Encode the message and set Content-type header',
+    )
 
     args = parser.parse_args()
 
@@ -78,8 +84,16 @@ def main():
         message.add_header(key, value)
 
     body_part = email.message.MIMEPart()
-    body_part.set_payload(body)
-    body_part.add_header('Content-Type', 'text/plain')
+    if args.encoding:
+        encoded = body.encode(args.encoding)
+        body_part.set_payload(encoded)
+        body_part.add_header(
+            'Content-Type', 'text/plain')
+        email.charset.add_charset(args.encoding, QP, QP)
+        body_part.set_charset(args.encoding)
+    else:
+        body_part.set_payload(body)
+        body_part.add_header('Content-Type', 'text/plain')
     message.attach(body_part)
 
     from email.generator import Generator
